@@ -1,85 +1,76 @@
 import data from './components/data';
 import { StyledMain } from './components/main.styled';
 import { ImQuotesRight } from 'react-icons/im';
-import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
 
 function App() {
   const [people, setPeople] = useState(data);
   const [value, setValue] = useState(0);
+  // console.log(people);
 
   useEffect(() => {
-    const maxLength = people.length - 1;
-    if (value > maxLength) {
+    const maxPeoplelength = people.length - 1;
+    if (value > maxPeoplelength) {
       setValue(0);
     }
     if (value < 0) {
-      setValue(maxLength);
+      setValue(maxPeoplelength);
     }
   }, [value, people]);
 
   useEffect(() => {
-    const time = setInterval(() => {
-      setValue((prevValue) => {
-        return prevValue + 1;
-      });
+    const valueInterval = setInterval(() => {
+      setValue(value + 1);
     }, 5000);
     return () => {
-      clearInterval(time);
+      clearInterval(valueInterval);
     };
   }, [value]);
+
   return (
     <StyledMain>
       <header className='title'>
-        <span>/</span>
-        <h1>Reviews</h1>
+        <h1>
+          <span>/</span>Review
+        </h1>
       </header>
+      {/* slider */}
       <section className='container'>
-        <Slider people={people} value={value} setValue={setValue} />
+        {people.map((person, personIndex) => {
+          let slidePosition = 'nextSlide';
+          if (personIndex === value) {
+            slidePosition = 'activeSlide';
+          }
+          if (
+            personIndex === value - 1 ||
+            (value === 0 && personIndex === people.length - 1)
+          ) {
+            slidePosition = 'lastSlide';
+          }
+
+          const { id, image, name, quote, title } = person;
+          return (
+            <article key={id} className={`slide ${slidePosition}`}>
+              <img src={image} alt='' />
+              <h3>{name}</h3>
+              <h4>{title}</h4>
+              <p>{quote}</p>
+              <ImQuotesRight className='quote-icon' />
+            </article>
+          );
+        })}
+        <div className='btn-section'>
+          <button className='btn' onClick={() => setValue(value - 1)}>
+            <FiChevronLeft />
+          </button>
+          <button className='btn' onClick={() => setValue(value + 1)}>
+            <FiChevronRight />
+          </button>
+        </div>
       </section>
     </StyledMain>
   );
 }
-
-const Slider = ({ people, value, setValue }) => {
-  // console.log(people);
-
-  return (
-    <>
-      {people.map((item, personIndex) => {
-        const { id, image, name, quote, title } = item;
-        let slideClass = 'nextSlide';
-        if (personIndex === value) {
-          slideClass = 'activeSlide';
-        }
-        if (
-          personIndex === value - 1 ||
-          (value === 0 && personIndex === people.length - 1)
-        ) {
-          slideClass = 'lastSlide';
-        }
-        return (
-          <article key={id} className={`slide ${slideClass}`}>
-            <div className='img-container'>
-              <img src={image} alt='' />
-            </div>
-            <h3>{name}</h3>
-            <h4>{title}</h4>
-            <p>{quote}</p>
-            <ImQuotesRight />
-          </article>
-        );
-      })}
-      <div className='button-container'>
-        <button className='prev-btn' onClick={() => setValue(value - 1)}>
-          <FaAngleLeft />
-        </button>
-        <button className='next-btn' onClick={() => setValue(value + 1)}>
-          <FaAngleRight />
-        </button>
-      </div>
-    </>
-  );
-};
 
 export default App;
